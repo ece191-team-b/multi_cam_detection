@@ -4,9 +4,6 @@ import message_filters
 import os
 import torch
 import numpy as np
-from multi_cam_obj_detection.multi_cam_obj_detection.utils.torch_utils import select_device
-from utils.torch_utils import *
-
 from sensor_msgs.msg import Image
 from std_msgs.msg import Int16
 from cv_bridge import CvBridge
@@ -16,6 +13,8 @@ from rclpy.node import Node
 class MultiCamSubscriber(Node):
         def __init__(self, queue = 1, slop = 0.1):
             super().__init__("multi_cam_sub_node")
+            
+            self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
             
             self.declare_parameter("model_path", "")
             self.declare_parameter("confidence_threshold", 0.5)
@@ -40,8 +39,9 @@ class MultiCamSubscriber(Node):
             self.camera_subs = []
             self.bridge = CvBridge()
             
+            self.device = torch.device(0)
             
-            self.device = select_device()
+            self.num_cams = max(self.num_cams, self._num_cams)
             
             for i in range(self.num_cams):
                 self.camera_subs.append(message_filters.Subscriber(self, Image, "camera/image_" + str(i)))
@@ -56,14 +56,14 @@ class MultiCamSubscriber(Node):
         
         def on_images_recieve(self, *args):
             images = [self.bridge.imgmsg_to_cv2(msg, "rgb8") for msg in args] # RGB, ndarray
+            # dim = (640, 640)
+            # images = [cv2.resize(image, dim, interpolation=cv2.INTER_AREA) for image in images]
             self.process_images(images)
             
-        def process_images(self, images):
-            image_batch = np.zeros((len(images), images[0].shape[0], images[0].shape[1], 3))
-            for i in range(len(images)):
-                image_batch[i] = images[i]
             
-            image_tensor = torch.from_numpy(image_batch).to_device(self.device)
+        def process_images(self, images):
+            
+            output = self.model(images)
             
         
 
