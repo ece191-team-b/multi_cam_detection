@@ -12,19 +12,20 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), glob('launch/*.py'))
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml'))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='chengjing',
-    maintainer_email='chengjing@todo.todo',
+    maintainer_email='cyuan@ucsd.edu',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'cams = multi_cam_obj_detection.multi_cam_id_calibration:main',
-            'subs = multi_cam_obj_detection.detection_node:main',
+            'cams = multi_cam_obj_detection.multi_cam_node:main',
+            'subs = multi_cam_obj_detection.cam_sub_node:main',
         ],
     },
 )

@@ -1,0 +1,7 @@
+cam_subs:
+  ros__parameters:
+    cam_topics: ['right_camera/image', 'left_camera/image']
+    model_path: 'model/'
+    confidence_threshold: 0.5
+    queue_size : 5
+    slop: 0.1

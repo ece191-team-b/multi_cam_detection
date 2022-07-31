@@ -20,6 +20,7 @@ class MultiCamSubscriber(Node):
             self.declare_parameter("confidence_threshold", 0.5)
             self.declare_parameter("queue_size", 1)
             self.declare_parameter("slop", 0.1)
+            self.declare_parameter("topics", None)
             
             
             self.num_cams = len(dai.Device.getAllAvailableDevices())
@@ -58,7 +59,7 @@ class MultiCamSubscriber(Node):
             images = [self.bridge.imgmsg_to_cv2(msg, "rgb8") for msg in args] # RGB, ndarray
             # dim = (640, 640)
             # images = [cv2.resize(image, dim, interpolation=cv2.INTER_AREA) for image in images]
-            self.process_images(images)
+            # self.process_images(images)
             
             
         def process_images(self, images):
