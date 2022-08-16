@@ -1,4 +1,4 @@
-cam_subs:
+subs:
   ros__parameters:
     cam_topics: ['right_camera/image', 'left_camera/image']
     model_path: 'model/'

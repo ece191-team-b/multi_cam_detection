@@ -1,0 +1,5 @@
+imgs:
+  ros__parameters:
+    img_width: 1448
+    img_height: 568
+    save_path: './'

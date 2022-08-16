@@ -13,8 +13,8 @@ from rclpy.node import Node
 
 class MultiCamSubscriber(Node):
         def __init__(self):
-            super().__init__("multi_cam_sub_node")
-            _cam = Node("cam_subs")
+            super().__init__("cam_subs")
+            # _cam = Node("cam_subs")
             
             self.get_logger().info("Initializing MultiCamSubscriber")
             
