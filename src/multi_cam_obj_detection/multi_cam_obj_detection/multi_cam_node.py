@@ -93,8 +93,10 @@ class MultiCamNode(Node):
                             
                             
     
-    def image_display_opencv(self, path): # debug
+    def image_display_opencv(self, path): # debug and take image
         img_cnt = 0
+        print("Make sure path is set to absolute path. s to save image, q to quit")
+        input("Press Enter to continue...")
         while True:
             for q_rgb, stream_name in self.q_rgb_list:
                 in_rgb = q_rgb.tryGet()
@@ -112,7 +114,7 @@ class MultiCamNode(Node):
 def main():
     rclpy.init()
     cam_node = MultiCamNode()
-    cam_node.camera_initialization()
+    cam_node.camera_initialization(debug=True, path="./") # TODO change the path to save images
 
 
 if __name__ == "main":
