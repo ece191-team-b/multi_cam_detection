@@ -2,6 +2,7 @@ import cv2
 import depthai as dai
 import contextlib
 
+import os
 from sensor_msgs.msg import Image
 from std_msgs.msg import Int16
 from cv_bridge import CvBridge
@@ -23,7 +24,7 @@ class MultiCamNode(Node):
         
 
 
-    def getPipeline(self, preview_res = (600, 300)):
+    def getPipeline(self, preview_res = (1448, 568)):
         # Start defining a pipeline
         pipeline = dai.Pipeline()
 
@@ -43,7 +44,7 @@ class MultiCamNode(Node):
         return pipeline
 
 
-    def camera_initialization(self, debug = False):
+    def camera_initialization(self, debug = False, path = "./"):
 
         # https://docs.python.org/3/library/contextlib.html#contextlib.ExitStack
         with contextlib.ExitStack() as stack:
@@ -77,7 +78,7 @@ class MultiCamNode(Node):
                 self.q_rgb_list.append((q_rgb, stream_name))
 
             if debug:
-                    self.image_display_opencv()
+                    self.image_display_opencv(path)
                 
             else:
                 while rclpy.ok():
@@ -89,6 +90,23 @@ class MultiCamNode(Node):
                         if in_rgb is not None:
                             img_msg = self.bridge.cv2_to_imgmsg(in_rgb.getCvFrame(), "bgr8")
                             self.cam_publishers[i].publish(img_msg)
+                            
+                            
+    
+    def image_display_opencv(self, path): # debug
+        img_cnt = 0
+        while True:
+            for q_rgb, stream_name in self.q_rgb_list:
+                in_rgb = q_rgb.tryGet()
+                if in_rgb is not None:
+                    cv2.imshow(stream_name, in_rgb.getCvFrame())
+                    key = cv2.waitKey(1) & 0xFF
+                    if key == ord('s'):
+                        cv2.imwrite(os.path.join(path, str(img_cnt) + '.bmp'), in_rgb.getCvFrame())
+                        print("Saved image: ", img_cnt)
+                        img_cnt += 1
+                    elif key == ord('q'):
+                        exit("user quit")
 
 
 def main():
