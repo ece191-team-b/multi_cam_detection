@@ -9,6 +9,17 @@ from cv_bridge import CvBridge
 import rclpy
 from rclpy.node import Node
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 
 class MultiCamNode(Node):
 
@@ -22,9 +33,12 @@ class MultiCamNode(Node):
         self.device_publisher = self.create_publisher(Int16, "device/info", 10)
         self.mxids = []
         
+        self.camera_initialization(debug = False, path = "./") #FIXME: CHANGE HERE TO ENTER DEBUG MODE
+        self._timer = self.create_timer(0.02, self.publish_image) # 1 / 0.02 = 50 HZ
+        
 
 
-    def getPipeline(self, preview_res = (1448, 568)):
+    def getPipeline(self, preview_res = (1448, 568)): # default to livox 
         # Start defining a pipeline
         pipeline = dai.Pipeline()
 
@@ -45,6 +59,8 @@ class MultiCamNode(Node):
 
 
     def camera_initialization(self, debug = False, path = "./"):
+        
+        self.get_logger().info(f"{bcolors.OKGREEN}Initializing camera capture node{bcolors.ENDC}")
 
         # https://docs.python.org/3/library/contextlib.html#contextlib.ExitStack
         with contextlib.ExitStack() as stack:
@@ -80,17 +96,18 @@ class MultiCamNode(Node):
             if debug:
                     self.image_display_opencv(path)
                 
-            else:
-                while rclpy.ok():
-                    num_device_msg = Int16()
-                    num_device_msg.data = self.num_devices
-                    self.device_publisher.publish(num_device_msg)
-                    for i, (q_rgb, _) in enumerate(self.q_rgb_list):
-                        in_rgb = q_rgb.tryGet()
-                        if in_rgb is not None:
-                            img_msg = self.bridge.cv2_to_imgmsg(in_rgb.getCvFrame(), "bgr8")
-                            self.cam_publishers[i].publish(img_msg)
-                            
+        
+        
+    def publish_image(self):
+        num_device_msg = Int16()
+        num_device_msg.data = self.num_devices
+        self.device_publisher.publish(num_device_msg)
+        for i, (q_rgb, _) in enumerate(self.q_rgb_list):
+            in_rgb = q_rgb.tryGet()
+            if in_rgb is not None:
+                img_msg = self.bridge.cv2_to_imgmsg(in_rgb.getCvFrame(), "bgr8")
+                self.cam_publishers[i].publish(img_msg)
+                        
                             
     
     def image_display_opencv(self, path): # debug
@@ -113,7 +130,6 @@ class MultiCamNode(Node):
 def main():
     rclpy.init()
     cam_node = MultiCamNode()
-    cam_node.camera_initialization()
 
 
 if __name__ == "main":

@@ -10,6 +10,5 @@ img = 'https://ultralytics.com/images/zidane.jpg'  # or file, Path, PIL, OpenCV,
 # Inference
 results = model(img)
 
-
 # Results
-results.show()  
+print(type(results))
