@@ -1,0 +1,6 @@
+cams:
+  ros__parameters:
+    capture: False
+    img_width: 1448
+    img_height: 568
+    save_path: '/'

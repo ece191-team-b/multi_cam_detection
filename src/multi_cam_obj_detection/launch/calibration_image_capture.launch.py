@@ -12,7 +12,7 @@ def generate_launch_description():
      
      return LaunchDescription([      
         Node(package='multi_cam_obj_detection',
-             name = "imgs",
-             executable='imgs',
+             name = "cams",
+             executable='cams',
              parameters = [config])
     ]) 

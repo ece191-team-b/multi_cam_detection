@@ -26,7 +26,6 @@ setup(
         'console_scripts': [
             'cams = multi_cam_obj_detection.multi_cam_node:main',
             'subs = multi_cam_obj_detection.cam_sub_node:main',
-            'imgs = multi_cam_obj_detection.calibration_img_capture_node:main',
         ],
     },
 )

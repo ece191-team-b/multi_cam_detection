@@ -32,10 +32,22 @@ class MultiCamNode(Node):
         self.bridge = CvBridge()
         self.device_publisher = self.create_publisher(Int16, "device/info", 10)
         self.mxids = []
+    
+        self.declare_parameter("capture", False)
+        self.declare_parameter("save_path", "./")
+        self.declare_parameter("img_width", 1448)
+        self.declare_parameter("img_height", 568)
+            
+        self.capture = self.get_parameter("capture").get_parameter_value().bool_value
+        self.img_save_path = self.get_parameter("save_path").get_parameter_value().string_value
+        self.img_width = self.get_parameter("img_width").get_parameter_value().integer_value
+        self.img_height = self.get_parameter("img_height").get_parameter_value().integer_value
         
-        self.camera_initialization(debug = False, path = "./") #FIXME: CHANGE HERE TO ENTER DEBUG MODE
-        self._timer = self.create_timer(0.02, self.publish_image) # 1 / 0.02 = 50 HZ
+        self.get_logger().info("MultiCamNode: capture: {}".format(self.capture))
         
+           
+        self.camera_initialization(capture = self.capture, path = self.img_save_path) #FIXME: CHANGE HERE TO ENTER DEBUG MODE
+
 
 
     def getPipeline(self, preview_res = (1448, 568)): # default to livox 
@@ -58,78 +70,79 @@ class MultiCamNode(Node):
         return pipeline
 
 
-    def camera_initialization(self, debug = False, path = "./"):
+    def camera_initialization(self, capture = False, path = "./"):
         
-        self.get_logger().info(f"{bcolors.OKGREEN}Initializing camera capture node{bcolors.ENDC}")
+        if not capture:
+            self.get_logger().info(f"{bcolors.OKGREEN}Initializing Normal Camera Node{bcolors.ENDC}")
 
         # https://docs.python.org/3/library/contextlib.html#contextlib.ExitStack
         with contextlib.ExitStack() as stack:
             device_infos = dai.Device.getAllAvailableDevices()
             if len(device_infos) == 0:
-                print("No device found")
+                self.get_logger().info(f"{bcolors.FAIL}No device found{bcolors.ENDC}")
                 exit()
             else:
-                print("Found", len(device_infos), "devices")
-
+                 self.get_logger().info(f"{bcolors.OKGREEN}Found {len(device_infos)} Devices! {bcolors.ENDC}")
+    
             for device_info in device_infos:
                 openvino_version = dai.OpenVINO.Version.VERSION_2021_4
                 usb2_mode = False
                 device = stack.enter_context(dai.Device(openvino_version, device_info, usb2_mode))
 
                 # Note: currently on POE, DeviceInfo.getMxId() and Device.getMxId() are different!
-                print("=== Connected to " + device_info.getMxId())
                 mxid = device.getMxId()
                 self.mxids.append(mxid)
                 self.cam_publishers.append(self.create_publisher(Image, "cam" + mxid + "/image", 10))
-                print("   >>> MXID:", mxid)
+                self.get_logger().info(f"{bcolors.OKCYAN}Found DeviceID: {mxid} {bcolors.ENDC}")
 
                 # Get a customized pipeline based on identified device type
-                pipeline = self.getPipeline()
-                print("   >>> Loading pipeline for: OAK-D-LITE")
+                pipeline = self.getPipeline(preview_res=(self.img_width, self.img_height))
                 device.startPipeline(pipeline)
 
                 # Output queue will be used to get the rgb frames from the output defined above
                 q_rgb = device.getOutputQueue(name="rgb", maxSize=4, blocking=False)
                 stream_name = "rgb-" + mxid + "-" + "OAK-D"
                 self.q_rgb_list.append((q_rgb, stream_name))
-
-            if debug:
-                    self.image_display_opencv(path)
                 
+                self.get_logger().info(f"{bcolors.OKGREEN}Device {mxid} initialized! {bcolors.ENDC}")
         
-        
-    def publish_image(self):
-        num_device_msg = Int16()
-        num_device_msg.data = self.num_devices
-        self.device_publisher.publish(num_device_msg)
-        for i, (q_rgb, _) in enumerate(self.q_rgb_list):
-            in_rgb = q_rgb.tryGet()
-            if in_rgb is not None:
-                img_msg = self.bridge.cv2_to_imgmsg(in_rgb.getCvFrame(), "bgr8")
-                self.cam_publishers[i].publish(img_msg)
-                        
-                            
-    
-    def image_display_opencv(self, path): # debug
-        img_cnt = 0
-        
-        while True:
-            for q_rgb, stream_name in self.q_rgb_list:
-                in_rgb = q_rgb.tryGet()
-                if in_rgb is not None:
-                    cv2.imshow(stream_name, in_rgb.getCvFrame())
-                    key = cv2.waitKey(1) & 0xFF
-                    if key == ord('s'):
-                        cv2.imwrite(os.path.join(path, str(img_cnt) + '.bmp'), in_rgb.getCvFrame())
-                        print("Saved image: ", img_cnt)
-                        img_cnt += 1
-                    elif key == ord('q'):
-                        exit("user quit")
 
+            if capture:
+                    self.get_logger().info(f"{bcolors.OKGREEN}Entering Image Save Mode{bcolors.ENDC}")
+                    self.get_logger().info(f"{bcolors.OKCYAN}Press s to save image to \"{path}\"{bcolors.ENDC}")
+                    self.get_logger().info(f"{bcolors.OKCYAN}Press q to quit{bcolors.ENDC}")
+                    
+                    img_cnt = 0
+                    
+                    while rclpy.ok():
+                        for q_rgb, stream_name in self.q_rgb_list:
+                            in_rgb = q_rgb.tryGet()
+                            if in_rgb is not None:
+                                cv2.imshow(stream_name, in_rgb.getCvFrame())
+                                key = cv2.waitKey(1) & 0xFF
+                                if key == ord('s'):
+                                    cv2.imwrite(os.path.join(path, str(img_cnt) + '.bmp'), in_rgb.getCvFrame())
+                                    self.get_logger().info(f"{bcolors.OKGREEN}Saved image {img_cnt}! {bcolors.ENDC}")
+                                    img_cnt += 1
+                                elif key == ord('q'):
+                                    self.get_logger().info(f"{bcolors.WARNING}{bcolors.BOLD}Quitting...{bcolors.ENDC}")
+                                    exit("user quit")
+            
+            else:
+                while rclpy.ok():
+                    for i, (q_rgb, _) in enumerate(self.q_rgb_list):
+                        in_rgb = q_rgb.tryGet()
+                        if in_rgb is not None:
+                            img_msg = self.bridge.cv2_to_imgmsg(in_rgb.getCvFrame(), "bgr8")
+                            self.cam_publishers[i].publish(img_msg)
+                    
+          
+        
 
 def main():
     rclpy.init()
     cam_node = MultiCamNode()
+    rclpy.spin(cam_node)
 
 
 if __name__ == "main":

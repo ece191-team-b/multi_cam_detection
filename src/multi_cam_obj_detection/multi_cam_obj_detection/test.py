@@ -1,14 +1,44 @@
 import torch
+from PIL import Image
+from utils.general import (
+    non_max_suppression
+)
+
 
 # Model
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  # or yolov5n - yolov5x6, custom
+device = torch.device('cuda:0')
+model = torch.hub.load('.', 'custom', path='yolov5s.pt', source='local').to(device)
+
+model.conf = 0.5
+model.iou = 0.45
+
+# model = DetectMultiBackend(weights="/home/chengjing/Desktop/multi_cam_detection/src/multi_cam_obj_detection/multi_cam_obj_detection/yolov5s.pt", device=device)
 
 # Images
-img = 'https://ultralytics.com/images/zidane.jpg'  # or file, Path, PIL, OpenCV, numpy, list
+for f in ['zidane.jpg', 'bus.jpg']:  # download 2 images
+    print(f'Downloading {f}...')
+    torch.hub.download_url_to_file('https://github.com/ultralytics/yolov5/releases/download/v1.0/' + f, f)
+imgs = [Image.open('bus.jpg'), Image.open('zidane.jpg')]  # batched list of imag
 
 
-# Inference
-results = model(img)
+results = model(imgs).tolist()
 
-# Results
-print(type(results))
+
+for result in results:
+    for i, det in enumerate(result.pred):
+         for *box, conf, cls in reversed(det):
+             print(box)
+
+
+# results = non_max_suppression(results.pred, 0.5, 0.5, classes=None, agnostic=False, max_det=10)
+
+# print(results.tolist())
+# print(type(results))
+
+# for result in results:
+
+#     result = non_max_suppression(result, 0.5, 0.5, classes=None, agnostic=False, max_det=10)
+    
+#     print(type(result))
+#     print(result)
+

@@ -7,7 +7,7 @@ def generate_launch_description():
      
      config = os.path.join(get_package_share_directory('multi_cam_obj_detection'),
         'config',
-        'multi_cam_topic.yaml'
+        'cam_sub.yaml'
         )
      
      return LaunchDescription([
