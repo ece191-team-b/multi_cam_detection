@@ -84,7 +84,6 @@ class MultiCamNode(Node):
             else:
                  self.get_logger().info(f"{bcolors.OKGREEN}Found {len(device_infos)} Devices! {bcolors.ENDC}")
                 
-            rate = rclpy.timer.Rate(10)
     
             for device_info in device_infos:
                 openvino_version = dai.OpenVINO.Version.VERSION_2021_4
@@ -101,7 +100,8 @@ class MultiCamNode(Node):
                 # Get a customized pipeline based on identified device type
                 pipeline = self.getPipeline(preview_res=(self.img_width, self.img_height))
                 device.startPipeline(pipeline)
-                rate.sleep()
+                time.sleep(0.1)
+
 
                 # Output queue will be used to get the rgb frames from the output defined above
                 q_rgb = device.getOutputQueue(name="rgb", maxSize=4, blocking=False)
