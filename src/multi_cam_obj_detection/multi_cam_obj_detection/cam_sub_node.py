@@ -33,12 +33,13 @@ class bcolors:
 class MultiCamSubscriber(Node):
         def __init__(self):
             super().__init__("cam_subs")
+            print("torch version is", torch.__version__)
             # _cam = Node("cam_subs")
             
             self.get_logger().info(f"{bcolors.OKGREEN}Initializing MultiCamSubscriber{bcolors.ENDC}")
             
             # Declare parameters
-            self.declare_parameter("model_path", "/home/chengjing/Desktop/multi_cam_detection/src/multi_cam_obj_detection/multi_cam_obj_detection/yolov5s.pt")
+            self.declare_parameter("model_path", "~/multi_cam_detection/src/multi_cam_obj_detection/multi_cam_obj_detection/yolov5s.pt")
             self.declare_parameter("queue_size", 1)
             self.declare_parameter("slop", 0.1)
             self.declare_parameter("cam_topics", ["None"])
@@ -152,6 +153,8 @@ class MultiCamSubscriber(Node):
                     )
                     obs = ObjectHypothesisWithPose()
                     obs.hypothesis = ObjectHypothesis(class_id=cls, score=float(score))
+                    detection_2d_msg.results.append(obs)
+                    detection_2d_array_msg.detections.append(detection_2d_msg)
                 self.bbox_pub[i].publish(detection_2d_array_msg)
             
 
