@@ -38,7 +38,7 @@ After that a window will pop up showing the image, please click on that window a
 
 ### Object Detection and BBOX Publishing
 Before starting the whole pipeline, please go to **_src/multi_cam_obj_detection/launch/cam_launch.py_** to remap the topics with camera's MXID and to the topic of your preference. **NOTE: If you are only using one camera, do not add more than one topic as message_filter will block callback until msg recieved from that topic.**
-1.  Please then go to **_src/multi_cam_obj_detection/config/cam_sub.yaml_** and add the remapped to topic to _topics_ as a **list**. Please also change other parameters accordingly. **NOTE: All paths should be ABSOLUTE PATH** 
+1.  Please then go to **_src/multi_cam_obj_detection/config/cam_sub.yaml_** and add the remapped to topic to _topics_ as a **list**. Please also change other parameters accordingly. Please also specify the topics where bounding box is published to. **NOTE: All paths should be ABSOLUTE PATH** 
 2.  Launch cameras with
 ```bash
 ros2 launch multi_cam_obj_detection cam_launch.launch.py

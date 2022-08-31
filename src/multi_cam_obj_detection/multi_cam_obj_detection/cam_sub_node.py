@@ -131,7 +131,7 @@ class MultiCamSubscriber(Node):
                             int(t.cpu().detach().numpy()) for t in box]
                         result_boxs[i].append([minx, miny, maxx, maxy])
                         scores[i].append(conf)
-                        classes[i].append("banana")
+                        classes[i].append(self.model.names[cls])
             
             return result_boxs, scores, classes
 
