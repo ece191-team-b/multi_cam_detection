@@ -8,6 +8,7 @@ from std_msgs.msg import Int16
 from cv_bridge import CvBridge
 import rclpy
 from rclpy.node import Node
+import time 
 
 class bcolors:
     HEADER = '\033[95m'
@@ -30,7 +31,6 @@ class MultiCamNode(Node):
         self.num_devices = len(self.device_info)
         self.cam_publishers = []
         self.bridge = CvBridge()
-        self.device_publisher = self.create_publisher(Int16, "device/info", 10)
         self.mxids = []
     
         self.declare_parameter("capture", False)
@@ -83,6 +83,8 @@ class MultiCamNode(Node):
                 exit()
             else:
                  self.get_logger().info(f"{bcolors.OKGREEN}Found {len(device_infos)} Devices! {bcolors.ENDC}")
+                
+            rate = rclpy.timer.Rate(10)
     
             for device_info in device_infos:
                 openvino_version = dai.OpenVINO.Version.VERSION_2021_4
@@ -93,11 +95,13 @@ class MultiCamNode(Node):
                 mxid = device.getMxId()
                 self.mxids.append(mxid)
                 self.cam_publishers.append(self.create_publisher(Image, "cam" + mxid + "/image", 10))
+        
                 self.get_logger().info(f"{bcolors.OKCYAN}Found DeviceID: {mxid} {bcolors.ENDC}")
 
                 # Get a customized pipeline based on identified device type
                 pipeline = self.getPipeline(preview_res=(self.img_width, self.img_height))
                 device.startPipeline(pipeline)
+                rate.sleep()
 
                 # Output queue will be used to get the rgb frames from the output defined above
                 q_rgb = device.getOutputQueue(name="rgb", maxSize=4, blocking=False)
