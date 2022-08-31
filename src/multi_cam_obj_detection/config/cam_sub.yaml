@@ -3,7 +3,8 @@ subs:
     # cam_topics: ['right_camera/image', 'left_camera/image']
     cam_topics: ['right_camera/image']
     bbox_topics: ['right_set/bbox']
-    model_path: 'src/multi_cam_obj_detection/multi_cam_obj_detection/yolov5s.pt'
+    # model_path: 'src/multi_cam_obj_detection/multi_cam_obj_detection/yolov5s.pt'
+    model_path: '/home/inspirationagx01/Downloads/best.pt'
     hub_cfg: 'src/multi_cam_obj_detection/multi_cam_obj_detection/'
     model_conf: 0.5
     model_iou: 0.45

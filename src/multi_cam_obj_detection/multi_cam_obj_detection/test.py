@@ -7,7 +7,7 @@ from utils.general import (
 
 # Model
 device = torch.device('cuda:0')
-model = torch.hub.load('.', 'custom', path='yolov5s.pt', source='local').to(device)
+model = torch.hub.load('.', 'custom', path='/home/inspirationagx01/multi_cam_detection/src/multi_cam_obj_detection/multi_cam_obj_detection/best.pt', source='local', force_reload=True).to(device)
 
 model.conf = 0.5
 model.iou = 0.45
