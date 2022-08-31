@@ -33,8 +33,8 @@ During Calibration, Please only connect **one camera** at a time.
 ```bash
 ros2 launch multi_cam_obj_detection calibration_image_capture.launch.py
 ```
-After that a window will pop up showing the image, please click on that window and follow instruction prompted in terminal to capture image, the default format is bmp. 
-3. **Note that at this time the camera's MXID will be printed to the terminal, please record that as it will be in later use.**
+After that a window will pop up showing the image, please click on that window and follow instruction prompted in terminal to capture image, the default format is bmp.   
+3. **Note that at this time the _camera's MXID_ will be printed to the terminal, please record that as it will be in later use.**
 
 ### Object Detection and BBOX Publishing
 Before starting the whole pipeline, please go to **_src/multi_cam_obj_detection/launch/cam_launch.py_** to remap the topics with camera's MXID and to the topic of your preference. **NOTE: If you are only using one camera, do not add more than one topic as message_filter will block callback until msg recieved from that topic.**
