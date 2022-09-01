@@ -138,7 +138,7 @@ class MultiCamNode(Node):
                         in_rgb = q_rgb.tryGet()
                         if in_rgb is not None:
                             img_msg = self.bridge.cv2_to_imgmsg(in_rgb.getCvFrame(), "bgr8")
-                            img_msg.header.time = self.get_clock().now().to_msg()
+                            img_msg.header.stamp = self.get_clock().now().to_msg()
                             self.cam_publishers[i].publish(img_msg)
                     
           
