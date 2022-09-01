@@ -93,7 +93,7 @@ class MultiCamNode(Node):
                 # Note: currently on POE, DeviceInfo.getMxId() and Device.getMxId() are different!
                 mxid = device.getMxId()
                 self.mxids.append(mxid)
-                self.cam_publishers.append(self.create_publisher(Image, "cam" + mxid + "/image", 10))
+                self.cam_publishers.append(self.create_publisher(Image, "cam" + mxid + "/image", 1))
         
                 self.get_logger().info(f"{bcolors.OKCYAN}Found DeviceID: {mxid} {bcolors.ENDC}")
 
