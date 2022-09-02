@@ -142,7 +142,7 @@ class MultiCamNode(Node):
                             img_msg = self.bridge.cv2_to_imgmsg(in_rgb.getCvFrame(), "bgr8")
                             img_msg.header.stamp = self.get_clock().now().to_msg()
                             self.cam_publishers[i].publish(img_msg)
-                            rate.sleep()
+                    rate.sleep()
                     
           
         
