@@ -134,7 +134,6 @@ class MultiCamNode(Node):
                     
             
             else:
-                rate = self.create_rate(30)
                 while rclpy.ok():
                     for i, (q_rgb, _) in enumerate(self.q_rgb_list):
                         in_rgb = q_rgb.tryGet()
@@ -142,7 +141,7 @@ class MultiCamNode(Node):
                             img_msg = self.bridge.cv2_to_imgmsg(in_rgb.getCvFrame(), "bgr8")
                             img_msg.header.stamp = self.get_clock().now().to_msg()
                             self.cam_publishers[i].publish(img_msg)
-                    rate.sleep()
+                    time.sleep(1/30)
                     
           
         
