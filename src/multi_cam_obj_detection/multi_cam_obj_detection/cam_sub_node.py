@@ -64,6 +64,8 @@ class MultiCamSubscriber(Node):
             self.get_logger().info(f"{bcolors.OKGREEN}Loading model {model_path} with conf {str(self.conf)}, iou {str(self.iou)} {bcolors.ENDC}")
             
             self.model = torch.hub.load(self.hub_cfg, 'custom', path=model_path, source='local', verbose=False, force_reload=True).to(self.device)
+            self.model.iou = self.iou
+            self.model.conf = self.conf
 
             self.get_logger().info(f"{bcolors.OKCYAN}Subscribing to Topics: {bcolors.ENDC}" + str(self.topics))
              
