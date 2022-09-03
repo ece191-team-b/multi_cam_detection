@@ -9,6 +9,8 @@ from cv_bridge import CvBridge
 import rclpy
 from rclpy.node import Node
 import time 
+from rclpy.qos import QoSProfile, QoSHistoryPolicy, QoSReliabilityPolicy
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -20,6 +22,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
 
 
 class MultiCamNode(Node):
@@ -48,7 +51,11 @@ class MultiCamNode(Node):
            
         self.camera_initialization(capture = self.capture, path = self.img_save_path) #FIXME: CHANGE HERE TO ENTER DEBUG MODE
 
-
+        self.camera_qos = QoSProfile(
+                reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_BEST_EFFORT,
+                history = QoSHistoryPolicy.RMW_QOS_POLICY_KEEP_LAST,
+                depth = 1
+            )
 
     def getPipeline(self, preview_res = (1448, 568)): # default to livox 
         # Start defining a pipeline
@@ -93,7 +100,7 @@ class MultiCamNode(Node):
                 # Note: currently on POE, DeviceInfo.getMxId() and Device.getMxId() are different!
                 mxid = device.getMxId()
                 self.mxids.append(mxid)
-                self.cam_publishers.append(self.create_publisher(Image, "cam" + mxid + "/image", 1))
+                self.cam_publishers.append(self.create_publisher(Image, "cam" + mxid + "/image", 1, self.camera_qos))
         
                 self.get_logger().info(f"{bcolors.OKCYAN}Found DeviceID: {mxid} {bcolors.ENDC}")
 

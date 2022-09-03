@@ -18,6 +18,7 @@ from vision_msgs.msg import (
     ObjectHypothesisWithPose,
     ObjectHypothesis
 )
+from rclpy.qos import QoSProfile, QoSHistoryPolicy, QoSReliabilityPolicy
 
 class bcolors:
     HEADER = '\033[95m'
@@ -74,10 +75,15 @@ class MultiCamSubscriber(Node):
             self.bridge = CvBridge()
             
             self.annotated_publisher = self.create_publisher(Image, "annotated_image", 10)
+            self.camera_qos = QoSProfile(
+                reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_BEST_EFFORT,
+                history = QoSHistoryPolicy.RMW_QOS_POLICY_KEEP_LAST,
+                depth = 1
+            )
             
             
             for topic in self.topics:
-                self.camera_subs.append(message_filters.Subscriber(self, Image, topic))
+                self.camera_subs.append(message_filters.Subscriber(self, Image, topic, qos_profile=self.camera_qos))
                 
             for topic in self.bbox_topic:
                 self.bbox_pub.append(self.create_publisher(Detection2DArray, topic, 10))
