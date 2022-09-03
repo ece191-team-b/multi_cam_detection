@@ -97,10 +97,17 @@ class MultiCamNode(Node):
                 usb2_mode = False
                 device = stack.enter_context(dai.Device(openvino_version, device_info, usb2_mode))
 
+                camera_qos = QoSProfile(
+                    reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
+                    history = QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                    depth = 1
+                )
+
+
                 # Note: currently on POE, DeviceInfo.getMxId() and Device.getMxId() are different!
                 mxid = device.getMxId()
                 self.mxids.append(mxid)
-                self.cam_publishers.append(self.create_publisher(Image, "cam" + mxid + "/image", 1, self.camera_qos))
+                self.cam_publishers.append(self.create_publisher(Image, "cam" + mxid + "/image", camera_qos))
         
                 self.get_logger().info(f"{bcolors.OKCYAN}Found DeviceID: {mxid} {bcolors.ENDC}")
 
