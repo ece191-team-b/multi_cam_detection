@@ -77,7 +77,7 @@ class MultiCamSubscriber(Node):
             self.annotated_publisher = self.create_publisher(Image, "annotated_image", 10)
             
             for topic in self.topics:
-                self.camera_subs.append(message_filters.Subscriber(self, Image, topic, 1))
+                self.camera_subs.append(message_filters.Subscriber(self, Image, topic))
                 
             for topic in self.bbox_topic:
                 self.bbox_pub.append(self.create_publisher(Detection2DArray, topic, 10))
