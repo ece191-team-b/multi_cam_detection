@@ -41,7 +41,7 @@ Before starting the whole pipeline, please go to **_src/multi_cam_obj_detection/
 1.  Please then go to **_src/multi_cam_obj_detection/config/cam_sub.yaml_** and add the remapped to topic to _topics_ as a **list**. Please also change other parameters accordingly. Please also specify the topics where bounding box is published to. **NOTE: All paths should be ABSOLUTE PATH** 
 2.  Launch cameras with
 ```bash
-ros2 launch multi_cam_obj_detection cam_launch.launch.py
+ros2 launch multi_cam_obj_detection cam.launch.py
 ```
 Make sure the camera is running, run 
 ```bash
@@ -50,7 +50,7 @@ rviz2
 and click on add, by topics and select the topics you set to see if images present. 
 3. Launch detection node
 ```bash
-ros2 launch multi_cam_obj_detection sub_launch.launch.py
+ros2 launch multi_cam_obj_detection sub.launch.py
 ```
 ***DOCUMENTATION STILL ONGOING***
 
